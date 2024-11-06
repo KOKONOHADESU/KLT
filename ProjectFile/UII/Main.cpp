@@ -220,8 +220,6 @@ void Update()
             if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
                 graph.isCheckSizeCollX)
             {
-                printfDx("X\n");
-
                 // 画像を動かさない
                 graph.isMoving = false;
 
@@ -242,8 +240,6 @@ void Update()
             if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
                 graph.isCheckSizeCollY)
             {
-                printfDx("Y\n");
-
                 // 画像を動かさない
                 graph.isMoving = false;
 
@@ -457,6 +453,21 @@ void Draw()
             DrawFormatString(graph.rect.left, graph.rect.top + 16, 0xffffff, "四角形座標　left : %f , top : %f , right : %f , bottom : %f", graph.rect.left, graph.rect.top, graph.rect.right, graph.rect.bottom);
         }
     }
+
+    // 画像がまだ一つも読み込まれていない場合
+    if (graphData.size() == 0)
+    {
+        DrawString(0, 0, "画像をドラッグ&ドロップしてね", 0xffffff);
+    }
+}
+
+void End()
+{
+    // メモリ解放
+    for (int i = 0; i < graphData.size() ; i++)
+    {
+        DeleteGraph(graphData[i].hGraph);
+    }
 }
 
 bool IsCheckSquare(int UpX, int UpY, int DownX, int DownY,
@@ -515,6 +526,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
             break;
         }
     }
+
+    // 解放処理
+    End();
 
     // ＤＸライブラリ使用の終了処理
     DxLib_End();
