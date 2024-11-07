@@ -35,7 +35,9 @@ struct GraphicData
     Vec2 changeSize; // 変更したサイズ
     float changeSizeXY = 0.0f;
     Vec2 tempClickPos; // 一時的に位置を記録する
+    Vec2 tempClickPosXY; // 一時的に位置を記録する
     Vec2 tempChangeSize;
+    Vec2 tempChangeSizeXY;
     Vec2 centerPos; // センター座標
     Vec2 size;      // サイズを記録する
     Vec2 movePos;   // 移動先
@@ -218,12 +220,16 @@ void Update()
 
             // サイズ変更をする場合
             if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
-                graph.isCheckSizeCollX)
+                graph.isCheckSizeCollX &&
+                !graph.isCheckSizeCollY)
             {
                 // 画像を動かさない
                 graph.isMoving = false;
 
                 graph.isChangeSizeClickX = true;
+
+                // マウスに触れている画像
+                graph.isCheckMouse = true;
             }
             else
             {
@@ -238,12 +244,16 @@ void Update()
         
             // サイズ変更をする場合
             if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
-                graph.isCheckSizeCollY)
+                graph.isCheckSizeCollY && 
+                !graph.isCheckSizeCollX)
             {
                 // 画像を動かさない
                 graph.isMoving = false;
 
                 graph.isChangeSizeClickY = true;
+
+                // マウスに触れている画像
+                graph.isCheckMouse = true;
             }
             else
             {
@@ -256,7 +266,7 @@ void Update()
                 graph.isCheckSizeCollY = false;
             }
 
-            /*
+            
             // サイズ変更をする場合
             if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
                 graph.isCheckSizeCollXY)
@@ -267,20 +277,23 @@ void Update()
                 graph.isMoving = false;
 
                 graph.isChangeSizeClickXY = true;
+
+                // マウスに触れている画像
+                graph.isCheckMouse = true;
             }
             else
             {
                 graph.isChangeSizeClickXY = false;
                 graph.isChangeSizeDraggingXY = false;
-                graph.tempClickPos.x = 0.0f;
-                graph.tempClickPos.y = 0.0f;
-                graph.tempChangeSize.x = 0.0f;
-                graph.tempChangeSize.y = 0.0f;
+                graph.tempClickPosXY.x = 0.0f;                                
+                graph.tempClickPosXY.y = 0.0f;                                
+                graph.tempChangeSizeXY.x = 0.0f;
+                graph.tempChangeSizeXY.y = 0.0f;
 
                 // 当たり判定確認
                 graph.isCheckSizeCollXY = false;
             }
-            */
+            
         }
        
         // 画像位置の変更
@@ -355,7 +368,7 @@ void Update()
                     graph.changeSize.y = graph.tempChangeSize.y - range;
                 }
             }
-            /*
+            
             // サイズ変更するためにクリックしていた場合
             if (graph.isChangeSizeClickXY)
             {
@@ -365,28 +378,26 @@ void Update()
                     graph.isChangeSizeDraggingXY = true;
 
                     // マウスのクリック座標を記録する
-                    graph.tempClickPos.x = mouseRectPos.centerPos.x;
-                    graph.tempClickPos.y = mouseRectPos.centerPos.y;
+                    graph.tempClickPosXY.x = mouseRectPos.centerPos.x;
+                    graph.tempClickPosXY.y = mouseRectPos.centerPos.y;
 
-                    graph.tempChangeSize.x = graph.changeSize.x;
-                    graph.tempChangeSize.y = graph.changeSize.y;
+                    graph.tempChangeSizeXY.x = graph.changeSize.x;
+                    graph.tempChangeSizeXY.y = graph.changeSize.y;
                 }
 
                 // ドラッグしている場合
                 if (graph.isChangeSizeDraggingXY)
                 {
                     // マウスのX座標移動量を計算
-                    const float rangeX = graph.tempClickPos.x - mouseRectPos.centerPos.x;
-                    const float rangeY = graph.tempClickPos.y - mouseRectPos.centerPos.y;
-
+                    const float rangeX = graph.tempClickPosXY.x - mouseRectPos.centerPos.x;
+                    const float rangeY = graph.tempClickPosXY.y - mouseRectPos.centerPos.y;
+                    const float range = rangeX + rangeY;
                     // 移動量をそのまま適用することで、拡大・縮小が可能に
-                    graph.changeSize.x = graph.tempChangeSize.x - rangeX;
-                    graph.changeSize.y = graph.tempChangeSize.y - rangeY;
-
-                    
+                    graph.changeSize.x = graph.tempChangeSizeXY.x - range / 2;
+                    graph.changeSize.y = graph.tempChangeSizeXY.y - range / 2;
                 }                
             }
-            */
+            
         }
     }
 }
@@ -448,9 +459,25 @@ void Draw()
                 0xffffff, true);
 
             // 座標
-            DrawFormatString(graph.rect.left, graph.rect.top, 0xffffff, "中心座標　x : %f , y : %f", graph.centerPos.x, graph.centerPos.y);
+            DrawFormatString(
+                graph.rect.left, graph.rect.top,
+                0xffffff,
+                "中心座標       [x : %f , y : %f]",graph.centerPos.x, graph.centerPos.y);
             // 四角形座標
-            DrawFormatString(graph.rect.left, graph.rect.top + 16, 0xffffff, "四角形座標　left : %f , top : %f , right : %f , bottom : %f", graph.rect.left, graph.rect.top, graph.rect.right, graph.rect.bottom);
+            DrawFormatString(
+                graph.rect.left, graph.rect.top + 16,
+                0xffffff,
+                "四角形座標     [left : %f , top : %f , right : %f , bottom : %f]",graph.rect.left, graph.rect.top, graph.rect.right, graph.rect.bottom);
+            // 拡大サイズ
+            DrawFormatString(
+                graph.rect.left, graph.rect.top + 16 + 16,
+                0xffffff,
+                "拡大サイズ     [x : %f , y : %f]",graph.changeSize.x, graph.changeSize.y);
+            // デフォルト画像サイズ
+            DrawFormatString(
+                graph.rect.left, graph.rect.top + 16 + 16 + 16,
+                0xffffff,
+                "初期画像サイズ [x : %f , y : %f]",graph.size.x, graph.size.y);
         }
     }
 
