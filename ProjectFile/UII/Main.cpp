@@ -4,6 +4,10 @@
 
 #include <DxLib.h>
 
+#include "DxLibKeyFresh.h"
+#include "DxLibMouseFresh.h"
+#include "Vec2.h"
+
 namespace
 {
     // 画像引き伸ばし判定のサイズ
@@ -11,13 +15,6 @@ namespace
 }
 
 bool IsCheckSquare(int UpX, int UpY, int DownX, int DownY, int UpX2, int UpY2, int DownX2, int DownY2);
-
-// ２次元座標
-struct Vec2
-{
-    float x;
-    float y;
-};
 
 // 四角形
 struct Rect
@@ -32,16 +29,16 @@ struct Rect
 struct GraphicData
 {
     Rect rect;      // 画像サイズ
-    Vec2 changeSize; // 変更したサイズ
+    Vec2<float> changeSize; // 変更したサイズ
     float changeSizeXY = 0.0f;
-    Vec2 tempClickPos; // 一時的に位置を記録する
-    Vec2 tempClickPosXY; // 一時的に位置を記録する
-    Vec2 tempChangeSize;
-    Vec2 tempChangeSizeXY;
-    Vec2 centerPos; // センター座標
-    Vec2 size;      // サイズを記録する
-    Vec2 movePos;   // 移動先
-    Vec2 offset;    // オフセットを記録する変数    
+    Vec2<float> tempClickPos; // 一時的に位置を記録する
+    Vec2<float> tempClickPosXY; // 一時的に位置を記録する
+    Vec2<float> tempChangeSize;
+    Vec2<float> tempChangeSizeXY;
+    Vec2<float> centerPos; // センター座標
+    Vec2<float> size;      // サイズを記録する
+    Vec2<float> movePos;   // 移動先
+    Vec2<float> offset;    // オフセットを記録する変数    
     bool isDragging = false;
     bool isChangeSizeDraggingX = false;
     bool isChangeSizeDraggingY = false;
@@ -67,7 +64,7 @@ struct GraphicData
 struct MouseData
 {
     Rect rect;      // サイズ
-    Vec2 centerPos; // センター座標
+    Vec2<float> centerPos; // センター座標
 };
 
 namespace
@@ -80,6 +77,9 @@ namespace
 
     // マウスデータ
     MouseData mouseRectPos{};
+
+    // データを描画するかどうか1
+    bool isUIDrawer = true;
 }
 
 void Update()
@@ -97,7 +97,7 @@ void Update()
             static_cast<float>(x) - 1,
             static_cast<float>(x) + 1
         },
-        Vec2
+        Vec2<float>
         {
             static_cast<float>(x),
             static_cast<float>(y)
@@ -197,7 +197,7 @@ void Update()
         // マウスクリック
         {
             // マウスクリック開始時にオフセットを計算
-            if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
                 graph.isCheckColl)
             {
                 // クリックしている
@@ -219,7 +219,7 @@ void Update()
             }
 
             // サイズ変更をする場合
-            if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
                 graph.isCheckSizeCollX &&
                 !graph.isCheckSizeCollY)
             {
@@ -243,7 +243,7 @@ void Update()
             }
         
             // サイズ変更をする場合
-            if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
                 graph.isCheckSizeCollY && 
                 !graph.isCheckSizeCollX)
             {
@@ -268,11 +268,9 @@ void Update()
 
             
             // サイズ変更をする場合
-            if ((GetMouseInput() & MOUSE_INPUT_LEFT) &&
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
                 graph.isCheckSizeCollXY)
             {
-                printfDx("XY\n");
-
                 // 画像を動かさない
                 graph.isMoving = false;
 
@@ -400,6 +398,12 @@ void Update()
             
         }
     }
+    KEY::DxLibKeyFresh::GetInstance()->Update();
+    // 描画データの切り替え
+    if (KEY::DxLibKeyFresh::GetInstance()->IsTrigger(KEY_INPUT_U))
+    {
+        isUIDrawer = !isUIDrawer;
+    }
 }
 
 void Draw()
@@ -458,26 +462,30 @@ void Draw()
                 graph.changeSizeCollXY.bottom,
                 0xffffff, true);
 
-            // 座標
-            DrawFormatString(
-                graph.rect.left, graph.rect.top,
-                0xffffff,
-                "中心座標       [x : %f , y : %f]",graph.centerPos.x, graph.centerPos.y);
-            // 四角形座標
-            DrawFormatString(
-                graph.rect.left, graph.rect.top + 16,
-                0xffffff,
-                "四角形座標     [left : %f , top : %f , right : %f , bottom : %f]",graph.rect.left, graph.rect.top, graph.rect.right, graph.rect.bottom);
-            // 拡大サイズ
-            DrawFormatString(
-                graph.rect.left, graph.rect.top + 16 + 16,
-                0xffffff,
-                "拡大サイズ     [x : %f , y : %f]",graph.changeSize.x, graph.changeSize.y);
-            // デフォルト画像サイズ
-            DrawFormatString(
-                graph.rect.left, graph.rect.top + 16 + 16 + 16,
-                0xffffff,
-                "初期画像サイズ [x : %f , y : %f]",graph.size.x, graph.size.y);
+            // データを描画するかどうか
+            if (isUIDrawer)
+            {
+                // 座標
+                DrawFormatString(
+                    graph.rect.left, graph.rect.top,
+                    0xffffff,
+                    "中心座標       [x : %f , y : %f]", graph.centerPos.x, graph.centerPos.y);
+                // 四角形座標
+                DrawFormatString(
+                    graph.rect.left, graph.rect.top + 16,
+                    0xffffff,
+                    "四角形座標     [left : %f , top : %f , right : %f , bottom : %f]", graph.rect.left, graph.rect.top, graph.rect.right, graph.rect.bottom);
+                // 拡大サイズ
+                DrawFormatString(
+                    graph.rect.left, graph.rect.top + 16 + 16,
+                    0xffffff,
+                    "拡大サイズ     [x : %f , y : %f]", graph.changeSize.x, graph.changeSize.y);
+                // デフォルト画像サイズ
+                DrawFormatString(
+                    graph.rect.left, graph.rect.top + 16 + 16 + 16,
+                    0xffffff,
+                    "初期画像サイズ [x : %f , y : %f]", graph.size.x, graph.size.y);
+            }           
         }
     }
 
@@ -495,6 +503,9 @@ void End()
     {
         DeleteGraph(graphData[i].hGraph);
     }
+
+    MOUSE::DxLibMouseFresh::Destroy();
+    KEY::DxLibKeyFresh::Destroy();
 }
 
 bool IsCheckSquare(int UpX, int UpY, int DownX, int DownY,
