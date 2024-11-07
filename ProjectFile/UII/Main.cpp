@@ -198,104 +198,101 @@ void Update()
         // マウスクリック
         {
             // マウスクリック開始時にオフセットを計算
-if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-    graph.isCheckColl)
-{
-    // クリックしている
-    graph.isGraphClick = true;
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+                graph.isCheckColl)
+            {
+                // クリックしている
+                graph.isGraphClick = true;
 
-    // 画像を動かす
-    graph.isMoving = true;
-}
-else
-{
-    // マウスボタンを離したらドラッグ終了
-    graph.isDragging = false;
+                // 画像を動かす
+                graph.isMoving = true;
+            }
+            else
+            {
+                // マウスボタンを離したらドラッグ終了
+                graph.isDragging = false;
 
-    // クリックしていない
-    graph.isGraphClick = false;
+                // クリックしていない
+                graph.isGraphClick = false;
 
-    // 触れていない画像
-    graph.isCheckColl = false;
-}
+                // 触れていない画像
+                graph.isCheckColl = false;
+            }
 
-// サイズ変更をする場合
-if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-    graph.isCheckSizeCollX &&
-    !graph.isCheckSizeCollY)
-{
-    // 画像を動かさない
-    graph.isMoving = false;
+            // サイズ変更をする場合
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+                graph.isCheckSizeCollX &&
+                !graph.isCheckSizeCollY)
+            {
+                // 画像を動かさない
+                graph.isMoving = false;
 
-    graph.isChangeSizeClickX = true;
+                graph.isChangeSizeClickX = true;
 
-    // マウスに触れている画像
-    graph.isCheckMouse = true;
-}
-else
-{
-    graph.isChangeSizeClickX = false;
-    graph.isChangeSizeDraggingX = false;
-    graph.tempClickPos.x = 0.0f;
-    graph.tempChangeSize.x = 0.0f;
+                // マウスに触れている画像
+                graph.isCheckMouse = true;
+            }
+            else
+            {
+                graph.isChangeSizeClickX = false;
+                graph.isChangeSizeDraggingX = false;
+                graph.tempClickPos.x = 0.0f;
+                graph.tempChangeSize.x = 0.0f;
 
-    // 当たり判定確認
-    graph.isCheckSizeCollX = false;
-}
+                // 当たり判定確認
+                graph.isCheckSizeCollX = false;
+            }
 
-// サイズ変更をする場合
-if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-    graph.isCheckSizeCollY &&
-    !graph.isCheckSizeCollX)
-{
-    // 画像を動かさない
-    graph.isMoving = false;
+            // サイズ変更をする場合
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+                graph.isCheckSizeCollY &&
+                !graph.isCheckSizeCollX)
+            {
+                // 画像を動かさない
+                graph.isMoving = false;
 
-    graph.isChangeSizeClickY = true;
+                graph.isChangeSizeClickY = true;
 
-    // マウスに触れている画像
-    graph.isCheckMouse = true;
-}
-else
-{
-    graph.isChangeSizeClickY = false;
-    graph.isChangeSizeDraggingY = false;
-    graph.tempClickPos.y = 0.0f;
-    graph.tempChangeSize.y = 0.0f;
+                // マウスに触れている画像
+                graph.isCheckMouse = true;
+            }
+            else
+            {
+                graph.isChangeSizeClickY = false;
+                graph.isChangeSizeDraggingY = false;
+                graph.tempClickPos.y = 0.0f;
+                graph.tempChangeSize.y = 0.0f;
 
-    // 当たり判定確認
-    graph.isCheckSizeCollY = false;
-}
+                // 当たり判定確認
+                graph.isCheckSizeCollY = false;
+            }
 
 
-// サイズ変更をする場合
-if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-    graph.isCheckSizeCollXY)
-{
-    // 画像を動かさない
-    graph.isMoving = false;
+            // サイズ変更をする場合
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+                graph.isCheckSizeCollXY)
+            {
+                // 画像を動かさない
+                graph.isMoving = false;
 
-    graph.isChangeSizeClickXY = true;
+                graph.isChangeSizeClickXY = true;
 
-    // マウスに触れている画像
-    graph.isCheckMouse = true;
-}
-else
-{
-    graph.isChangeSizeClickXY = false;
-    graph.isChangeSizeDraggingXY = false;
-    graph.tempClickPosXY.x = 0.0f;
-    graph.tempClickPosXY.y = 0.0f;
-    graph.tempChangeSizeXY.x = 0.0f;
-    graph.tempChangeSizeXY.y = 0.0f;
+                // マウスに触れている画像
+                graph.isCheckMouse = true;
+            }
+            else
+            {
+                graph.isChangeSizeClickXY = false;
+                graph.isChangeSizeDraggingXY = false;
+                graph.tempClickPosXY.x = 0.0f;
+                graph.tempClickPosXY.y = 0.0f;
+                graph.tempChangeSizeXY.x = 0.0f;
+                graph.tempChangeSizeXY.y = 0.0f;
 
-    // 当たり判定確認
-    graph.isCheckSizeCollXY = false;
-}
-
+                // 当たり判定確認
+                graph.isCheckSizeCollXY = false;
+            }
         }
-
-
     }
 
     // 配列の順番を変えたいがこのやり方は効率がわるい
