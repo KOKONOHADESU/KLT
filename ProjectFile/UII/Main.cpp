@@ -389,10 +389,10 @@ void Update()
                     // マウスのX座標移動量を計算
                     const float rangeX = graph.tempClickPosXY.x - mouseRectPos.centerPos.x;
                     const float rangeY = graph.tempClickPosXY.y - mouseRectPos.centerPos.y;
-                    const float range = rangeX + rangeY;
+                    const float range = (rangeX + rangeY) / 2.0f;
                     // 移動量をそのまま適用することで、拡大・縮小が可能に
-                    graph.changeSize.x = graph.tempChangeSizeXY.x - range / 2;
-                    graph.changeSize.y = graph.tempChangeSizeXY.y - range / 2;
+                    graph.changeSize.x = graph.tempChangeSizeXY.x - range;
+                    graph.changeSize.y = graph.tempChangeSizeXY.y - range;
                 }                
             }
             
