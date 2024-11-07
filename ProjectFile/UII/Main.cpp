@@ -1,7 +1,7 @@
 #include <string>
 #include <stdio.h>
 #include <vector>
-
+#include <algorithm>
 #include <DxLib.h>
 
 #include "DxLibKeyFresh.h"
@@ -28,6 +28,7 @@ struct Rect
 // 画像保存データ
 struct GraphicData
 {
+    bool isMain = false; // 
     Rect rect;      // 画像サイズ
     Vec2<float> changeSize; // 変更したサイズ
     float changeSizeXY = 0.0f;
@@ -124,7 +125,7 @@ void Update()
 
         // ドラッグファイルデータのクリア
         DragFileInfoClear();
-    }
+    }    
 
     for (auto& graph : graphData)
     {
@@ -197,103 +198,152 @@ void Update()
         // マウスクリック
         {
             // マウスクリック開始時にオフセットを計算
-            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-                graph.isCheckColl)
-            {
-                // クリックしている
-                graph.isGraphClick = true;
+if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+    graph.isCheckColl)
+{
+    // クリックしている
+    graph.isGraphClick = true;
 
-                // 画像を動かす
-                graph.isMoving = true;
-            }
-            else
-            {
-                // マウスボタンを離したらドラッグ終了
-                graph.isDragging = false;
+    // 画像を動かす
+    graph.isMoving = true;
+}
+else
+{
+    // マウスボタンを離したらドラッグ終了
+    graph.isDragging = false;
 
-                // クリックしていない
-                graph.isGraphClick = false;
+    // クリックしていない
+    graph.isGraphClick = false;
 
-                // 触れていない画像
-                graph.isCheckColl = false;
-            }
+    // 触れていない画像
+    graph.isCheckColl = false;
+}
 
-            // サイズ変更をする場合
-            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-                graph.isCheckSizeCollX &&
-                !graph.isCheckSizeCollY)
-            {
-                // 画像を動かさない
-                graph.isMoving = false;
+// サイズ変更をする場合
+if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+    graph.isCheckSizeCollX &&
+    !graph.isCheckSizeCollY)
+{
+    // 画像を動かさない
+    graph.isMoving = false;
 
-                graph.isChangeSizeClickX = true;
+    graph.isChangeSizeClickX = true;
 
-                // マウスに触れている画像
-                graph.isCheckMouse = true;
-            }
-            else
-            {
-                graph.isChangeSizeClickX = false;
-                graph.isChangeSizeDraggingX = false;
-                graph.tempClickPos.x = 0.0f;
-                graph.tempChangeSize.x = 0.0f;
+    // マウスに触れている画像
+    graph.isCheckMouse = true;
+}
+else
+{
+    graph.isChangeSizeClickX = false;
+    graph.isChangeSizeDraggingX = false;
+    graph.tempClickPos.x = 0.0f;
+    graph.tempChangeSize.x = 0.0f;
 
-                // 当たり判定確認
-                graph.isCheckSizeCollX = false;
-            }
-        
-            // サイズ変更をする場合
-            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-                graph.isCheckSizeCollY && 
-                !graph.isCheckSizeCollX)
-            {
-                // 画像を動かさない
-                graph.isMoving = false;
+    // 当たり判定確認
+    graph.isCheckSizeCollX = false;
+}
 
-                graph.isChangeSizeClickY = true;
+// サイズ変更をする場合
+if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+    graph.isCheckSizeCollY &&
+    !graph.isCheckSizeCollX)
+{
+    // 画像を動かさない
+    graph.isMoving = false;
 
-                // マウスに触れている画像
-                graph.isCheckMouse = true;
-            }
-            else
-            {
-                graph.isChangeSizeClickY = false;
-                graph.isChangeSizeDraggingY = false;
-                graph.tempClickPos.y = 0.0f;
-                graph.tempChangeSize.y = 0.0f;
+    graph.isChangeSizeClickY = true;
 
-                // 当たり判定確認
-                graph.isCheckSizeCollY = false;
-            }
+    // マウスに触れている画像
+    graph.isCheckMouse = true;
+}
+else
+{
+    graph.isChangeSizeClickY = false;
+    graph.isChangeSizeDraggingY = false;
+    graph.tempClickPos.y = 0.0f;
+    graph.tempChangeSize.y = 0.0f;
 
-            
-            // サイズ変更をする場合
-            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
-                graph.isCheckSizeCollXY)
-            {
-                // 画像を動かさない
-                graph.isMoving = false;
+    // 当たり判定確認
+    graph.isCheckSizeCollY = false;
+}
 
-                graph.isChangeSizeClickXY = true;
 
-                // マウスに触れている画像
-                graph.isCheckMouse = true;
-            }
-            else
-            {
-                graph.isChangeSizeClickXY = false;
-                graph.isChangeSizeDraggingXY = false;
-                graph.tempClickPosXY.x = 0.0f;                                
-                graph.tempClickPosXY.y = 0.0f;                                
-                graph.tempChangeSizeXY.x = 0.0f;
-                graph.tempChangeSizeXY.y = 0.0f;
+// サイズ変更をする場合
+if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+    graph.isCheckSizeCollXY)
+{
+    // 画像を動かさない
+    graph.isMoving = false;
 
-                // 当たり判定確認
-                graph.isCheckSizeCollXY = false;
-            }
-            
+    graph.isChangeSizeClickXY = true;
+
+    // マウスに触れている画像
+    graph.isCheckMouse = true;
+}
+else
+{
+    graph.isChangeSizeClickXY = false;
+    graph.isChangeSizeDraggingXY = false;
+    graph.tempClickPosXY.x = 0.0f;
+    graph.tempClickPosXY.y = 0.0f;
+    graph.tempChangeSizeXY.x = 0.0f;
+    graph.tempChangeSizeXY.y = 0.0f;
+
+    // 当たり判定確認
+    graph.isCheckSizeCollXY = false;
+}
+
         }
-       
+
+
+    }
+
+    // 配列の順番を変えたいがこのやり方は効率がわるい
+    // 気が向いたら直す()
+    {
+        // 配列がない場合は処理をしない
+        if (graphData.size() != 0)
+        {
+            // 配列の最大数から要素の確認
+            for (int i = graphData.size() - 1; i >= 0; i--)
+            {
+                // クリックされた要素を探す
+                if (graphData[i].isCheckColl)
+                {
+                    graphData[i].isMain = true;
+                    break;
+                }
+                else
+                {
+                    graphData[i].isMain = false;
+                }
+            }
+
+            GraphicData tempData;
+
+            for (int i = 0; i < graphData.size(); i++)
+            {
+                // クリックされていない要素を確認
+                if (!graphData[i].isMain)
+                {
+                    graphData[i].isMoving = false;
+                    graphData[i].isCheckColl = false;
+                }
+                else
+                {
+                    // クリックされている要素のコピー
+                    tempData = graphData[i];
+                    graphData[i] = {};
+                }
+            }
+            // コピーした要素を最後の要素にする
+            graphData.push_back(tempData);
+        }
+    }
+    
+
+    for (auto& graph : graphData)
+    {
         // 画像位置の変更
         {
             // 画像をクリックしている場合
@@ -315,89 +365,92 @@ void Update()
             }
         }
 
-        // 画像サイズの変更
+        if (graph.isMain)
         {
-            // サイズ変更するためにクリックしていた場合
-            if (graph.isChangeSizeClickX)
+            // 画像サイズの変更
             {
-                // ドラッグしていない場合
-                if (!graph.isChangeSizeDraggingX)
+                // サイズ変更するためにクリックしていた場合
+                if (graph.isChangeSizeClickX)
                 {
-                    graph.isChangeSizeDraggingX = true;
+                    // ドラッグしていない場合
+                    if (!graph.isChangeSizeDraggingX)
+                    {
+                        graph.isChangeSizeDraggingX = true;
 
-                    // マウスのクリック座標を記録する
-                    graph.tempClickPos.x = mouseRectPos.centerPos.x;
+                        // マウスのクリック座標を記録する
+                        graph.tempClickPos.x = mouseRectPos.centerPos.x;
 
-                    graph.tempChangeSize.x = graph.changeSize.x;
+                        graph.tempChangeSize.x = graph.changeSize.x;
+                    }
+
+                    // ドラッグしている場合
+                    if (graph.isChangeSizeDraggingX)
+                    {
+                        // マウスのX座標移動量を計算
+                        const float range = graph.tempClickPos.x - mouseRectPos.centerPos.x;
+
+                        // 移動量をそのまま適用することで、拡大・縮小が可能に
+                        graph.changeSize.x = graph.tempChangeSize.x - range;
+                    }
                 }
 
-                // ドラッグしている場合
-                if (graph.isChangeSizeDraggingX)
+                // サイズ変更するためにクリックしていた場合
+                if (graph.isChangeSizeClickY)
                 {
-                    // マウスのX座標移動量を計算
-                    const float range = graph.tempClickPos.x - mouseRectPos.centerPos.x;
+                    // ドラッグしていない場合
+                    if (!graph.isChangeSizeDraggingY)
+                    {
+                        graph.isChangeSizeDraggingY = true;
 
-                    // 移動量をそのまま適用することで、拡大・縮小が可能に
-                    graph.changeSize.x = graph.tempChangeSize.x - range;
+                        // マウスのクリック座標を記録する
+                        graph.tempClickPos.y = mouseRectPos.centerPos.y;
+
+                        graph.tempChangeSize.y = graph.changeSize.y;
+                    }
+
+                    // ドラッグしている場合
+                    if (graph.isChangeSizeDraggingY)
+                    {
+                        // マウスのX座標移動量を計算
+                        const float range = graph.tempClickPos.y - mouseRectPos.centerPos.y;
+
+                        // 移動量をそのまま適用することで、拡大・縮小が可能に
+                        graph.changeSize.y = graph.tempChangeSize.y - range;
+                    }
+                }
+
+                // サイズ変更するためにクリックしていた場合
+                if (graph.isChangeSizeClickXY)
+                {
+                    // ドラッグしていない場合
+                    if (!graph.isChangeSizeDraggingXY)
+                    {
+                        graph.isChangeSizeDraggingXY = true;
+
+                        // マウスのクリック座標を記録する
+                        graph.tempClickPosXY.x = mouseRectPos.centerPos.x;
+                        graph.tempClickPosXY.y = mouseRectPos.centerPos.y;
+
+                        graph.tempChangeSizeXY.x = graph.changeSize.x;
+                        graph.tempChangeSizeXY.y = graph.changeSize.y;
+                    }
+
+                    // ドラッグしている場合
+                    if (graph.isChangeSizeDraggingXY)
+                    {
+                        // マウスのX座標移動量を計算
+                        const float rangeX = graph.tempClickPosXY.x - mouseRectPos.centerPos.x;
+                        const float rangeY = graph.tempClickPosXY.y - mouseRectPos.centerPos.y;
+                        const float range = (rangeX + rangeY) / 2.0f;
+                        // 移動量をそのまま適用することで、拡大・縮小が可能に
+                        graph.changeSize.x = graph.tempChangeSizeXY.x - range;
+                        graph.changeSize.y = graph.tempChangeSizeXY.y - range;
+                    }
                 }
             }
-
-            // サイズ変更するためにクリックしていた場合
-            if (graph.isChangeSizeClickY)
-            {
-                // ドラッグしていない場合
-                if (!graph.isChangeSizeDraggingY)
-                {
-                    graph.isChangeSizeDraggingY = true;
-
-                    // マウスのクリック座標を記録する
-                    graph.tempClickPos.y = mouseRectPos.centerPos.y;
-
-                    graph.tempChangeSize.y = graph.changeSize.y;
-                }
-
-                // ドラッグしている場合
-                if (graph.isChangeSizeDraggingY)
-                {
-                    // マウスのX座標移動量を計算
-                    const float range = graph.tempClickPos.y - mouseRectPos.centerPos.y;
-
-                    // 移動量をそのまま適用することで、拡大・縮小が可能に
-                    graph.changeSize.y = graph.tempChangeSize.y - range;
-                }
-            }
-            
-            // サイズ変更するためにクリックしていた場合
-            if (graph.isChangeSizeClickXY)
-            {
-                // ドラッグしていない場合
-                if (!graph.isChangeSizeDraggingXY)
-                {
-                    graph.isChangeSizeDraggingXY = true;
-
-                    // マウスのクリック座標を記録する
-                    graph.tempClickPosXY.x = mouseRectPos.centerPos.x;
-                    graph.tempClickPosXY.y = mouseRectPos.centerPos.y;
-
-                    graph.tempChangeSizeXY.x = graph.changeSize.x;
-                    graph.tempChangeSizeXY.y = graph.changeSize.y;
-                }
-
-                // ドラッグしている場合
-                if (graph.isChangeSizeDraggingXY)
-                {
-                    // マウスのX座標移動量を計算
-                    const float rangeX = graph.tempClickPosXY.x - mouseRectPos.centerPos.x;
-                    const float rangeY = graph.tempClickPosXY.y - mouseRectPos.centerPos.y;
-                    const float range = (rangeX + rangeY) / 2.0f;
-                    // 移動量をそのまま適用することで、拡大・縮小が可能に
-                    graph.changeSize.x = graph.tempChangeSizeXY.x - range;
-                    graph.changeSize.y = graph.tempChangeSizeXY.y - range;
-                }                
-            }
-            
         }
     }
+
     KEY::DxLibKeyFresh::GetInstance()->Update();
     // 描画データの切り替え
     if (KEY::DxLibKeyFresh::GetInstance()->IsTrigger(KEY_INPUT_U))
