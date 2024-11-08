@@ -17,7 +17,7 @@ namespace
     constexpr float kGraphOutSideSize = 1.0f;
 }
 
-bool IsCheckSquare(int UpX, int UpY, int DownX, int DownY, int UpX2, int UpY2, int DownX2, int DownY2);
+bool IsCheckSquare(float UpX, float UpY, float DownX, float DownY, float UpX2, float UpY2, float DownX2, float DownY2);
 
 // 四角形
 struct Rect
@@ -32,17 +32,17 @@ struct Rect
 struct GraphicData
 {
     bool isMain = false; // 
-    Rect rect;      // 画像サイズ
-    Vec2<float> changeSize; // 変更したサイズ
+    Rect rect{ 0.0f,0.0f ,0.0f ,0.0f };      // 画像サイズ
+    Vec2<float> changeSize{ 0.0f,0.0f }; // 変更したサイズ
     float changeSizeXY = 0.0f;
-    Vec2<float> tempClickPos; // 一時的に位置を記録する
-    Vec2<float> tempClickPosXY; // 一時的に位置を記録する
-    Vec2<float> tempChangeSize;
-    Vec2<float> tempChangeSizeXY;
-    Vec2<float> centerPos; // センター座標
-    Vec2<float> size;      // サイズを記録する
-    Vec2<float> movePos;   // 移動先
-    Vec2<float> offset;    // オフセットを記録する変数    
+    Vec2<float> tempClickPos{ 0.0f,0.0f }; // 一時的に位置を記録する
+    Vec2<float> tempClickPosXY{ 0.0f,0.0f }; // 一時的に位置を記録する
+    Vec2<float> tempChangeSize{ 0.0f,0.0f };
+    Vec2<float> tempChangeSizeXY{ 0.0f,0.0f };
+    Vec2<float> centerPos{ 0.0f,0.0f }; // センター座標
+    Vec2<float> size{ 0.0f,0.0f };      // サイズを記録する
+    Vec2<float> movePos{ 0.0f,0.0f };   // 移動先
+    Vec2<float> offset{ 0.0f,0.0f };    // オフセットを記録する変数    
     bool isDragging = false;
     bool isChangeSizeDraggingX = false;
     bool isChangeSizeDraggingY = false;
@@ -53,22 +53,22 @@ struct GraphicData
     bool isChangeSizeClickY = false;
     bool isChangeSizeClickXY = false;
     bool isChangeSizeY = false;
-    Rect changeSizeCollX; // サイズを変更する為の判定
-    Rect changeSizeCollY; // サイズを変更する為の判定
-    Rect changeSizeCollXY; // サイズを変更する為の判定
+    Rect changeSizeCollX{ 0.0f,0.0f ,0.0f ,0.0f }; // サイズを変更する為の判定
+    Rect changeSizeCollY{ 0.0f,0.0f ,0.0f ,0.0f }; // サイズを変更する為の判定
+    Rect changeSizeCollXY{ 0.0f,0.0f ,0.0f ,0.0f }; // サイズを変更する為の判定
     bool isCheckMouse = false; // マウスカーソルに当たっているかどうか
     bool isCheckColl = false;
     bool isCheckSizeCollX = false;
     bool isCheckSizeCollY = false;
     bool isCheckSizeCollXY = false;
-    int hGraph;     // 画像ハンドル
+    int hGraph = -1;     // 画像ハンドル
 };
 
 // マウスデータ
 struct MouseData
 {
-    Rect rect;      // サイズ
-    Vec2<float> centerPos; // センター座標
+    Rect rect{ 0.0f,0.0f, 0.0f, 0.0f };      // サイズ
+    Vec2<float> centerPos{ 0.0f,0.0f }; // センター座標
 };
 
 namespace
@@ -310,7 +310,7 @@ void Update()
         if (graphData.size() != 0)
         {
             // 配列の最大数から要素の確認
-            for (int i = graphData.size() - 1; i >= 0; i--)
+            for (int i = static_cast<int>(graphData.size()) - 1; i >= 0; i--)
             {
                 // クリックされた要素を探す
                 if (graphData[i].isCheckColl)
@@ -325,7 +325,6 @@ void Update()
             }
 
             GraphicData tempData;
-
             for (int i = 0; i < graphData.size(); i++)
             {
                 // クリックされていない要素を確認
@@ -346,7 +345,6 @@ void Update()
         }
     }
     
-
     for (auto& graph : graphData)
     {
         // 画像位置の変更
@@ -455,6 +453,7 @@ void Update()
             }
         }
 
+        // 画面外処理
         {
             isScreenLeftHit = false;
             isScreenTopHit = false;
@@ -490,7 +489,7 @@ void Update()
 void Draw()
 {
     // マウスの判定
-    DrawBox(
+    DrawBoxAA(
         mouseRectPos.rect.left,
         mouseRectPos.rect.top,
         mouseRectPos.rect.right,
@@ -509,7 +508,7 @@ void Draw()
             graph.hGraph,true);
 
         // 画像の枠
-        DrawBox(
+        DrawBoxAA(
             graph.rect.left,
             graph.rect.top,
             graph.rect.right,
@@ -520,7 +519,7 @@ void Draw()
         if (graph.isCheckMouse)
         {
             // X座標
-            DrawBox(
+            DrawBoxAA(
                 graph.changeSizeCollX.left,
                 graph.changeSizeCollX.top,
                 graph.changeSizeCollX.right,
@@ -528,7 +527,7 @@ void Draw()
                 0xff0000, true);
 
             // Y座標
-            DrawBox(
+            DrawBoxAA(
                 graph.changeSizeCollY.left,
                 graph.changeSizeCollY.top,
                 graph.changeSizeCollY.right,
@@ -536,7 +535,7 @@ void Draw()
                 0x00ff00, true);
 
             // X Y
-            DrawBox(
+            DrawBoxAA(
                 graph.changeSizeCollXY.left,
                 graph.changeSizeCollXY.top,
                 graph.changeSizeCollXY.right,
@@ -547,22 +546,22 @@ void Draw()
             if (isUIDrawer)
             {
                 // 座標
-                DrawFormatString(
+                DrawFormatStringF(
                     graph.rect.left, graph.rect.top,
                     0xffffff,
                     "中心座標       [x : %f , y : %f]", graph.centerPos.x, graph.centerPos.y);
                 // 四角形座標
-                DrawFormatString(
+                DrawFormatStringF(
                     graph.rect.left, graph.rect.top + 16,
                     0xffffff,
                     "四角形座標     [left : %f , top : %f , right : %f , bottom : %f]", graph.rect.left, graph.rect.top, graph.rect.right, graph.rect.bottom);
                 // 拡大サイズ
-                DrawFormatString(
+                DrawFormatStringF(
                     graph.rect.left, graph.rect.top + 16 + 16,
                     0xffffff,
                     "拡大サイズ     [x : %f , y : %f]", graph.changeSize.x, graph.changeSize.y);
                 // デフォルト画像サイズ
-                DrawFormatString(
+                DrawFormatStringF(
                     graph.rect.left, graph.rect.top + 16 + 16 + 16,
                     0xffffff,
                     "初期画像サイズ [x : %f , y : %f]", graph.size.x, graph.size.y);
@@ -580,15 +579,15 @@ void Draw()
         }
         if (isScreenTopHit)
         {
-            DrawBox(0.0f, 0.0f, 1920.0f, kGraphOutSideSize, 0x00ff00, true);
+            DrawBoxAA(0.0f, 0.0f, 1920.0f, kGraphOutSideSize, 0x00ff00, true);
         }
         if (isScreenRightHit)
         {
-            DrawBox(1920.0f - kGraphOutSideSize, 0.0f, 1920.0f, 1080.0f, 0xff0000, true);
+            DrawBoxAA(1920.0f - kGraphOutSideSize, 0.0f, 1920.0f, 1080.0f, 0xff0000, true);
         }
         if (isScreenBottomHit)
         {
-            DrawBox(0.0f, 1080.0f - kGraphOutSideSize, 1920.0f, 1080.0f, 0x00ff00, true);
+            DrawBoxAA(0.0f, 1080.0f - kGraphOutSideSize, 1920.0f, 1080.0f, 0x00ff00, true);
         }    
     }
 
@@ -611,8 +610,8 @@ void End()
     KEY::DxLibKeyFresh::Destroy();
 }
 
-bool IsCheckSquare(int UpX, int UpY, int DownX, int DownY,
-    int UpX2, int UpY2, int DownX2, int DownY2)
+bool IsCheckSquare(float UpX, float UpY, float DownX, float DownY,
+    float UpX2, float UpY2, float DownX2, float DownY2)
 {
     if (DownX < UpX2) return false;
     if (UpX > DownX2) return false;
