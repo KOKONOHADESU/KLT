@@ -12,6 +12,9 @@ namespace
 {
     // 画像引き伸ばし判定のサイズ
     constexpr float kGraphChangeSize = 5.0f;
+
+    // 画面外に画像が出た場合
+    constexpr float kGraphOutSideSize = 1.0f;
 }
 
 bool IsCheckSquare(int UpX, int UpY, int DownX, int DownY, int UpX2, int UpY2, int DownX2, int DownY2);
@@ -567,22 +570,27 @@ void Draw()
         }
     }
 
-    if (isScreenLeftHit)
+    // データを描画するかどうか
+    if (isUIDrawer)
     {
-        DrawBox(0, 0, 5, 1080, 0xff0000, true);
+        // 画面外に画像で出た場合
+        if (isScreenLeftHit)
+        {
+            DrawBoxAA(0.0f, 0.0f, kGraphOutSideSize, 1080.0f, 0xff0000, true);
+        }
+        if (isScreenTopHit)
+        {
+            DrawBox(0.0f, 0.0f, 1920.0f, kGraphOutSideSize, 0x00ff00, true);
+        }
+        if (isScreenRightHit)
+        {
+            DrawBox(1920.0f - kGraphOutSideSize, 0.0f, 1920.0f, 1080.0f, 0xff0000, true);
+        }
+        if (isScreenBottomHit)
+        {
+            DrawBox(0.0f, 1080.0f - kGraphOutSideSize, 1920.0f, 1080.0f, 0x00ff00, true);
+        }    
     }
-    if (isScreenTopHit)
-    {
-        DrawBox(0, 0, 1920, 5, 0x00ff00, true);
-    }
-    if (isScreenRightHit)
-    {
-        DrawBox(1920 - 5, 0, 1920, 1080, 0xff0000, true);
-    }
-    if (isScreenBottomHit)
-    {
-        DrawBox(0, 1080 - 5, 1920, 1080, 0x00ff00, true);
-    }    
 
     // 画像がまだ一つも読み込まれていない場合
     if (graphData.size() == 0)
