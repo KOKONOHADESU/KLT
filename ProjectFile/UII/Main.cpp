@@ -15,6 +15,9 @@ namespace
 
     // 画面外に画像が出た場合
     constexpr float kGraphOutSideSize = 1.0f;
+
+    // リセットボタンのサイズ
+    constexpr float kResetBottonSize = 30.0f;
 }
 
 bool IsCheckSquare(float UpX, float UpY, float DownX, float DownY, float UpX2, float UpY2, float DownX2, float DownY2);
@@ -165,10 +168,10 @@ void Update()
             graph.changeSizeCollXY.right  = graph.rect.right;
             graph.changeSizeCollXY.bottom = graph.rect.bottom;
 
-            graph.resetBotton.left   = graph.rect.right      - kGraphChangeSize - kGraphChangeSize - 10.0f;
+            graph.resetBotton.left   = graph.rect.right      - kGraphChangeSize - kGraphChangeSize - kResetBottonSize;
             graph.resetBotton.top    = graph.rect.top        + kGraphChangeSize + kGraphChangeSize;
             graph.resetBotton.right  = graph.rect.right      - kGraphChangeSize - kGraphChangeSize;
-            graph.resetBotton.bottom = graph.resetBotton.top + 10.0f;
+            graph.resetBotton.bottom = graph.resetBotton.top + kResetBottonSize;
         }
 
         // 画像とマウスの判定
@@ -692,6 +695,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
     while (ProcessMessage() == 0)
     {
+        LONGLONG  time = GetNowHiPerformanceCount();
+
         // 画面のクリア
         ClearDrawScreen();
 
@@ -708,6 +713,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
         if (CheckHitKey(KEY_INPUT_ESCAPE))
         {
             break;
+        }
+
+        // fpsを60に固定
+        while (GetNowHiPerformanceCount() - time < 16667)
+        {
         }
     }
 
