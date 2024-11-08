@@ -81,6 +81,11 @@ namespace
 
     // データを描画するかどうか1
     bool isUIDrawer = true;
+
+    bool isScreenLeftHit   = false;
+    bool isScreenTopHit    = false;
+    bool isScreenRightHit  = false;
+    bool isScreenBottomHit = false;
 }
 
 void Update()
@@ -293,7 +298,7 @@ void Update()
                 graph.isCheckSizeCollXY = false;
             }
         }
-    }
+    }{}
 
     // 配列の順番を変えたいがこのやり方は効率がわるい
     // 気が向いたら直す()
@@ -446,6 +451,29 @@ void Update()
                 }
             }
         }
+
+        {
+            isScreenLeftHit = false;
+            isScreenTopHit = false;
+            isScreenRightHit = false;
+            isScreenBottomHit = false;
+            if (graph.rect.left < 0)
+            {
+                isScreenLeftHit = true;
+            }
+            if (graph.rect.top < 0)
+            {
+                isScreenTopHit = true;
+            }
+            if (graph.rect.right > 1920)
+            {
+                isScreenRightHit = true;
+            }
+            if (graph.rect.bottom > 1080)
+            {
+                isScreenBottomHit = true;
+            }
+        }
     }
 
     KEY::DxLibKeyFresh::GetInstance()->Update();
@@ -535,9 +563,26 @@ void Draw()
                     graph.rect.left, graph.rect.top + 16 + 16 + 16,
                     0xffffff,
                     "初期画像サイズ [x : %f , y : %f]", graph.size.x, graph.size.y);
-            }           
+            }
         }
     }
+
+    if (isScreenLeftHit)
+    {
+        DrawBox(0, 0, 5, 1080, 0xff0000, true);
+    }
+    if (isScreenTopHit)
+    {
+        DrawBox(0, 0, 1920, 5, 0x00ff00, true);
+    }
+    if (isScreenRightHit)
+    {
+        DrawBox(1920 - 5, 0, 1920, 1080, 0xff0000, true);
+    }
+    if (isScreenBottomHit)
+    {
+        DrawBox(0, 1080 - 5, 1920, 1080, 0x00ff00, true);
+    }    
 
     // 画像がまだ一つも読み込まれていない場合
     if (graphData.size() == 0)
