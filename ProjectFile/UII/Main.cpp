@@ -123,8 +123,8 @@ void Update()
         // ‰æ‘œƒf[ƒ^‚Ì’Ç‰Á
         GraphicData data{};
         data.hGraph = LoadGraph(filepath);
-        data.centerPos.x = 1920.0f / 2.0f;
-        data.centerPos.y = 1080.f  / 2.0f;
+        data.centerPos.x = 1920.0f  / 2.0f;
+        data.centerPos.y = 1080.0f  / 2.0f;
         float x = 0.0f;
         float y = 0.0f;
         GetGraphSizeF(data.hGraph, &x, &y);
