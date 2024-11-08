@@ -42,7 +42,8 @@ struct GraphicData
     Vec2<float> centerPos{ 0.0f,0.0f }; // センター座標
     Vec2<float> size{ 0.0f,0.0f };      // サイズを記録する
     Vec2<float> movePos{ 0.0f,0.0f };   // 移動先
-    Vec2<float> offset{ 0.0f,0.0f };    // オフセットを記録する変数    
+    Vec2<float> offset{ 0.0f,0.0f };    // オフセットを記録する変数   
+    Rect resetBotton{ 0.0f,0.0f ,0.0f ,0.0f }; // リセットボタン
     bool isDragging = false;
     bool isChangeSizeDraggingX = false;
     bool isChangeSizeDraggingY = false;
@@ -61,6 +62,7 @@ struct GraphicData
     bool isCheckSizeCollX = false;
     bool isCheckSizeCollY = false;
     bool isCheckSizeCollXY = false;
+    bool isResetBottonColl = false;
     int hGraph = -1;     // 画像ハンドル
 };
 
@@ -162,6 +164,11 @@ void Update()
             graph.changeSizeCollXY.top    = graph.rect.bottom - kGraphChangeSize;
             graph.changeSizeCollXY.right  = graph.rect.right;
             graph.changeSizeCollXY.bottom = graph.rect.bottom;
+
+            graph.resetBotton.left   = graph.rect.right      - kGraphChangeSize - kGraphChangeSize - 10.0f;
+            graph.resetBotton.top    = graph.rect.top        + kGraphChangeSize + kGraphChangeSize;
+            graph.resetBotton.right  = graph.rect.right      - kGraphChangeSize - kGraphChangeSize;
+            graph.resetBotton.bottom = graph.resetBotton.top + 10.0f;
         }
 
         // 画像とマウスの判定
@@ -201,6 +208,14 @@ void Update()
         {
             // 当たり判定確認
             graph.isCheckSizeCollXY = true;
+        }
+
+        // リセットボタンの確認
+        if (IsCheckSquare(
+            mouseRectPos.rect.left, mouseRectPos.rect.top, mouseRectPos.rect.right, mouseRectPos.rect.bottom,
+            graph.resetBotton.left, graph.resetBotton.top, graph.resetBotton.right, graph.resetBotton.bottom))
+        {
+            graph.isResetBottonColl = true;
         }
         
         // マウスクリック
@@ -300,6 +315,16 @@ void Update()
                 // 当たり判定確認
                 graph.isCheckSizeCollXY = false;
             }
+
+            // リセットする場合
+            if (MOUSE::DxLibMouseFresh::GetInstance()->IsPress(MOUSE_INPUT_LEFT) &&
+                graph.isResetBottonColl)
+            {
+                graph.changeSize.x = 0.0f;
+                graph.changeSize.y = 0.0f;
+
+                graph.isResetBottonColl = false;
+            }
         }
     }{}
 
@@ -368,7 +393,7 @@ void Update()
             }
         }
 
-        if (graph.isMain)
+        if (graph.isMain && isUIDrawer)
         {
             // 画像サイズの変更
             {
@@ -507,44 +532,63 @@ void Draw()
             graph.rect.bottom,
             graph.hGraph,true);
 
-        // 画像の枠
-        DrawBoxAA(
-            graph.rect.left,
-            graph.rect.top,
-            graph.rect.right,
-            graph.rect.bottom,
-            0xffffff, false);
+        if (isUIDrawer)
+        {
+            // 画像の枠
+            DrawBoxAA(
+                graph.rect.left,
+                graph.rect.top,
+                graph.rect.right,
+                graph.rect.bottom,
+                0xffffff, false);
+        }
 
         // マウスに画像が触れていた場合
         if (graph.isCheckMouse)
         {
-            // X座標
-            DrawBoxAA(
-                graph.changeSizeCollX.left,
-                graph.changeSizeCollX.top,
-                graph.changeSizeCollX.right,
-                graph.changeSizeCollX.bottom,
-                0xff0000, true);
-
-            // Y座標
-            DrawBoxAA(
-                graph.changeSizeCollY.left,
-                graph.changeSizeCollY.top,
-                graph.changeSizeCollY.right,
-                graph.changeSizeCollY.bottom,
-                0x00ff00, true);
-
-            // X Y
-            DrawBoxAA(
-                graph.changeSizeCollXY.left,
-                graph.changeSizeCollXY.top,
-                graph.changeSizeCollXY.right,
-                graph.changeSizeCollXY.bottom,
-                0xffffff, true);
-
             // データを描画するかどうか
             if (isUIDrawer)
             {
+                // X座標
+                DrawBoxAA(
+                    graph.changeSizeCollX.left,
+                    graph.changeSizeCollX.top,
+                    graph.changeSizeCollX.right,
+                    graph.changeSizeCollX.bottom,
+                    0xff0000, true);
+
+                // Y座標
+                DrawBoxAA(
+                    graph.changeSizeCollY.left,
+                    graph.changeSizeCollY.top,
+                    graph.changeSizeCollY.right,
+                    graph.changeSizeCollY.bottom,
+                    0x00ff00, true);
+
+                // X Y
+                DrawBoxAA(
+                    graph.changeSizeCollXY.left,
+                    graph.changeSizeCollXY.top,
+                    graph.changeSizeCollXY.right,
+                    graph.changeSizeCollXY.bottom,
+                    0xffffff, true);
+
+                // リセットボタン
+                DrawBoxAA(
+                    graph.resetBotton.left,
+                    graph.resetBotton.top,
+                    graph.resetBotton.right,
+                    graph.resetBotton.bottom,
+                    0xffff00, true);
+
+                // リセットボタン
+                DrawBoxAA(
+                    graph.resetBotton.left - 1,
+                    graph.resetBotton.top - 1,
+                    graph.resetBotton.right + 1,
+                    graph.resetBotton.bottom + 1,
+                    0xffffff, false);
+
                 // 座標
                 DrawFormatStringF(
                     graph.rect.left, graph.rect.top,
